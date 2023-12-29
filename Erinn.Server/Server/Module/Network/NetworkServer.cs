@@ -58,6 +58,9 @@ namespace Erinn
             if (!_connections.TryGetValue(id, out var peer))
                 return;
             peer.DisconnectNow(0);
+            _connections.Remove(id);
+            OnDisconnectedCallback?.Invoke(id);
+            Log.Info($"客户端断开[{id}] [{peer.EndPointString()}]");
         }
 
         /// <summary>
@@ -136,7 +139,8 @@ namespace Erinn
                             Log.Info($"客户端连接[{id}] {netEvent.EndPointString()}");
                             break;
                         case EventType.Disconnect:
-                            _connections.Remove(id);
+                            if (!_connections.Remove(id))
+                                return;
                             OnDisconnectedCallback?.Invoke(id);
                             Log.Info($"客户端断开[{id}] {netEvent.EndPointString()}");
                             break;
